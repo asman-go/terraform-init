@@ -1,5 +1,4 @@
 import boto3
-import os
 import pydantic_settings
 
 
@@ -52,5 +51,3 @@ if __name__ == '__main__':
         [{'AttributeName': 'LockID', 'KeyType': 'HASH'}],
         [{'AttributeName': 'LockID', 'AttributeType': 'S'}]
     )
-    os.environ['AWS_ACCESS_KEY_ID'] = '***'
-    os.environ['AWS_SECRET_ACCESS_KEY'] = '***'
