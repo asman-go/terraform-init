@@ -1,5 +1,5 @@
 locals {
-  folder_name = "${var.folder}-${var.environment}-${random_integer.postfix}"
+  folder_name = "${var.folder}-${var.environment}-${random_integer.postfix.result}"
 }
 
 resource "random_integer" "postfix" {
