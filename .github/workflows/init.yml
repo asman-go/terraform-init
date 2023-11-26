@@ -50,7 +50,7 @@ jobs:
     - name: Terraform outputs
       id: terraform-outputs
       run: |
-        dynamodb_api_endpoint=$(terraform -chdir=${{ env.BASE_DIR }} output document-api-endpoint)
+        dynamodb_api_endpoint=$(terraform -chdir=${{ env.BASE_DIR }} output -raw document-api-endpoint)
         s3_storage_tfstate=$(terraform -chdir=${{ env.BASE_DIR }} output -json storage-tfstate)
         bucket_name=$(echo $s3_storage_tfstate | jq -r '.bucket')
         access_key=$(echo $s3_storage_tfstate | jq -r '.access_key')
@@ -95,5 +95,5 @@ jobs:
         TABLE_NAME: ${{ env.TABLE_NAME }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
         REGION_NAME: ${{ env.REGION }}
-        AWS_ACCESS_KEY_ID: ${{ needs.terraform-init.outputs.access-key }}
-        AWS_SECRET_ACCESS_KEY: ${{ needs.terraform-init.outputs.secret-key }}
+        GITHUB_AWS_ACCESS_KEY_ID: ${{ needs.terraform-init.outputs.access-key }}
+        GITHUB_AWS_SECRET_ACCESS_KEY: ${{ needs.terraform-init.outputs.secret-key }}

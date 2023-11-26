@@ -6,8 +6,8 @@ class Config(pydantic_settings.BaseSettings):
     TABLE_NAME: str = "lock"
     DOCUMENT_API_ENDPOINT: str = "https://example.com/path/to/your/db"
     REGION_NAME: str = "ru-central1"
-    AWS_ACCESS_KEY_ID: str = "<key-id>"
-    AWS_SECRET_ACCESS_KEY: str = "<secret-access-key>"
+    GITHUB_AWS_ACCESS_KEY_ID: str = "<key-id>"
+    GITHUB_AWS_SECRET_ACCESS_KEY: str = "<secret-access-key>"
 
 
 class DocumentAPI(object):
@@ -16,16 +16,16 @@ class DocumentAPI(object):
             'dynamodb',
             endpoint_url=config.DOCUMENT_API_ENDPOINT,
             region_name=config.REGION_NAME,
-            aws_access_key_id=config.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=config.GITHUB_AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=config.GITHUB_AWS_SECRET_ACCESS_KEY,
         )
 
         self._resource = boto3.resource(
             'dynamodb',
             endpoint_url=config.DOCUMENT_API_ENDPOINT,
             region_name=config.REGION_NAME,
-            aws_access_key_id=config.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY
+            aws_access_key_id=config.GITHUB_AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=config.GITHUB_AWS_SECRET_ACCESS_KEY
         )
     
     def create_table(self, table_name: str, key_schema, attribute_definitions):
