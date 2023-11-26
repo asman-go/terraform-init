@@ -90,10 +90,10 @@ jobs:
         pip install -r scripts/requirements.txt
 
     - name: execute py script # run main.py
-      run: python scripts/dynamodb_init.py
+      run: python scripts/dynamodb_init.py -a ${{ needs.terraform-init.outputs.access-key }} -s ${{ needs.terraform-init.outputs.secret-key }}
       env:
         TABLE_NAME: ${{ env.TABLE_NAME }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
         REGION_NAME: ${{ env.REGION }}
-        AWS_ACCESS_KEY_ID: ${{ needs.terraform-init.outputs.access-key }}
-        AWS_SECRET_ACCESS_KEY: ${{ needs.terraform-init.outputs.secret-key }}
+        # AWS_ACCESS_KEY_ID: ${{ needs.terraform-init.outputs.access-key }}
+        # AWS_SECRET_ACCESS_KEY: ${{ needs.terraform-init.outputs.secret-key }}

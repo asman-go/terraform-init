@@ -1,3 +1,4 @@
+import argparse
 import boto3
 import pydantic_settings
 
@@ -43,8 +44,21 @@ class DocumentAPI(object):
         return table
 
 
+def arg_parser():
+    parser = argparse.ArgumentParser(description='Terraform infrastructure init')
+
+    parser.add_argument('-a', '--access_key', help='AWS Access Key', required=True)
+    parser.add_argument('-s', '--secret_key', help='AWS Secret Key', required=True)
+
+    args = parser.parse_args()
+
+    return args
+
+
 if __name__ == '__main__':
-    config = Config()
+    args = arg_parser()
+    config = Config(AWS_ACCESS_KEY_ID=args.access_key, AWS_SECRET_ACCESS_KEY=args.secret_key)
+
     dynamodb = DocumentAPI(config)
     dynamodb.create_table(
         config.TABLE_NAME,
