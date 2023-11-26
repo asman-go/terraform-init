@@ -44,8 +44,8 @@ jobs:
     - name: Terraform apply
       run: |
         terraform -chdir=${{ env.BASE_DIR }} init
-        terraform -chdir=${{ env.BASE_DIR }} plan -input=false -var-file ${{ env.BASE_DIR }}/tfvars/testing.vars
-        terraform -chdir=${{ env.BASE_DIR }} apply -auto-approve -input=false -var-file ${{ env.BASE_DIR }}/tfvars/testing.vars
+        terraform -chdir=${{ env.BASE_DIR }} plan -input=false -var-file tfvars/testing.vars
+        terraform -chdir=${{ env.BASE_DIR }} apply -auto-approve -input=false -var-file tfvars/testing.vars
       # env:
       #   YC_TOKEN: ${{ secrets.YCLOUN_ACCESS_TOKEN_TESTING }}
 
