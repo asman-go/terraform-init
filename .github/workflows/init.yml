@@ -11,9 +11,6 @@ on:
         description: Path to a Terraform configs folder
         default: deploy
 
-env:
-  YC_TOKEN: ${{ secrets.YC_TOKEN }}
-
 jobs:
   terraform-init:
     name: Terraform apply
@@ -30,6 +27,7 @@ jobs:
         shell: bash
 
     env:
+      YC_TOKEN: ${{ secrets.YC_TOKEN }}
       BASE_DIR: deploy
 
     steps:
@@ -53,7 +51,7 @@ jobs:
       id: terraform-outputs
       run: |
         dynamodb_api_endpoint=$(terraform -chdir=${{ env.BASE_DIR }} output document-api-endpoint)
-        s3_storage_tfstate=$(terraform -chdir=${{ env.BASE_DIR }} output storage-tfstate)
+        s3_storage_tfstate=$(terraform -chdir=${{ env.BASE_DIR }} output -json storage-tfstate)
         bucket_name=$(echo $s3_storage_tfstate | jq -r '.bucket')
         access_key=$(echo $s3_storage_tfstate | jq -r '.access_key')
         secret_key=$(echo $s3_storage_tfstate | jq -r '.secret_key')
