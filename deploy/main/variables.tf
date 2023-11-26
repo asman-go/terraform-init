@@ -4,6 +4,6 @@ variable "folder-name" {
 }
 
 variable "unique-postfix" {
-  descrdescription = "Случайное число для создания уникальных имен (например, для сервисных аккаунтов)"
+  description = "Случайное число для создания уникальных имен (например, для сервисных аккаунтов)"
   type = number
 }

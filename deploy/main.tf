@@ -35,6 +35,7 @@ module "terraform-main" {
   }
 
   folder-name = local.folder_name
+  unique-postfix = random_integer.postfix.result
 
   depends_on = [ yandex_resourcemanager_folder.folder ]
 }
