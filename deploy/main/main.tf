@@ -31,7 +31,7 @@ resource "yandex_iam_service_account_static_access_key" "sa-terraform-static-key
 
 // Создаем ресурсы
 resource "yandex_storage_bucket" "asman-tfstate" {
-  bucket = "asman-tfstate"
+  bucket = "asman-tfstate-${var.unique-postfix}"
 
   access_key = yandex_iam_service_account_static_access_key.sa-terraform-static-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-terraform-static-key.secret_key
