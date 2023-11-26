@@ -56,8 +56,8 @@ def arg_parser():
 
 
 if __name__ == '__main__':
-    args = arg_parser()
-    config = Config(AWS_ACCESS_KEY_ID=args.access_key, AWS_SECRET_ACCESS_KEY=args.secret_key)
+    # args = arg_parser()
+    config = Config()
 
     dynamodb = DocumentAPI(config)
     dynamodb.create_table(

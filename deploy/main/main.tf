@@ -4,7 +4,7 @@ data "yandex_resourcemanager_folder" "asman-folder" {
 
 // Создаем service account
 resource "yandex_iam_service_account" "sa-terraform" {
-  name        = "sa-terraform-remote"
+  name        = "sa-terraform-remote-${var.unique-postfix}"
   description = "Сервисный аккаунт для доступа к YDB/S3 для управления хранилищем состояния инфраструктуры tfstate"
 }
 
