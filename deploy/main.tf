@@ -1,5 +1,10 @@
 locals {
-  folder_name = "${var.folder}-${var.environment}"
+  folder_name = "${var.folder}-${var.environment}-${random_integer.postfix}"
+}
+
+resource "random_integer" "postfix" {
+  min = 40000
+  max = 50000
 }
 
 data "yandex_resourcemanager_cloud" "cloud" {
