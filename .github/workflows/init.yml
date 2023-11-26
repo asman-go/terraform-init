@@ -91,8 +91,9 @@ jobs:
 
     - name: Try to hide secrets
       run: |
-        AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
+        AWS_ACCESS_KEY_ID=test
         echo "::add-mask::$AWS_ACCESS_KEY_ID"
+        AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
         echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> $GITHUB_ENV
 
     - name: execute py script # run main.py
