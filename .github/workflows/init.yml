@@ -98,23 +98,23 @@ jobs:
     #     AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
     #     echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> $GITHUB_ENV
 
-    # - name: Decrypt secrets from the previous job
-    #   run: |
-    #     echo "AWS_ACCESS_KEY_ID=$(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
-    #     echo "AWS_SECRET_ACCESS_KEY=$(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
+    - name: Decrypt secrets from the previous job
+      run: |
+        echo "AWS_ACCESS_KEY_ID=$(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
 
     - name: execute py script # run main.py
-      # run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
-      run: |
-        AWS_ACCESS_KEY_ID=init
-        echo "::add-mask::$AWS_ACCESS_KEY_ID"
-        AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
+      run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
+      # run: |
+      #   AWS_ACCESS_KEY_ID=init
+      #   echo "::add-mask::$AWS_ACCESS_KEY_ID"
+      #   AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
 
-        AWS_SECRET_ACCESS_KEY=init
-        echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
-        AWS_SECRET_ACCESS_KEY=${{ needs.terraform-init.outputs.secret-key }}
+      #   AWS_SECRET_ACCESS_KEY=init
+      #   echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
+      #   AWS_SECRET_ACCESS_KEY=${{ needs.terraform-init.outputs.secret-key }}
 
-        python scripts/dynamodb_init.py -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
+      #   python scripts/dynamodb_init.py -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
       env:
         TABLE_NAME: ${{ env.TABLE_NAME }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
