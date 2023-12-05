@@ -53,8 +53,10 @@ jobs:
         dynamodb_api_endpoint=$(terraform -chdir=${{ env.BASE_DIR }} output -raw document-api-endpoint)
         s3_storage_tfstate=$(terraform -chdir=${{ env.BASE_DIR }} output -json storage-tfstate)
         bucket_name=$(echo $s3_storage_tfstate | jq -r '.bucket')
-        access_key=$(echo $s3_storage_tfstate | jq -r '.access_key' | gpg --symmetric --batch --quiet --cipher-algo AES256 --passphrase ${{ secrets.SECRET_PASSPHRASE }} | base64 -w 0)
-        secret_key=$(echo $s3_storage_tfstate | jq -r '.secret_key' | gpg --symmetric --batch --quiet --cipher-algo AES256 --passphrase ${{ secrets.SECRET_PASSPHRASE }} | base64 -w 0)
+        # access_key=$(echo $s3_storage_tfstate | jq -r '.access_key' | gpg --symmetric --batch --quiet --cipher-algo AES256 --passphrase ${{ secrets.SECRET_PASSPHRASE }} | base64 -w 0)
+        # secret_key=$(echo $s3_storage_tfstate | jq -r '.secret_key' | gpg --symmetric --batch --quiet --cipher-algo AES256 --passphrase ${{ secrets.SECRET_PASSPHRASE }} | base64 -w 0)
+        access_key=$(echo $s3_storage_tfstate | jq -r '.access_key')
+        secret_key=$(echo $s3_storage_tfstate | jq -r '.secret_key')
 
         echo "document-api-endpoint=$dynamodb_api_endpoint" >> $GITHUB_OUTPUT
         echo "bucket-name=$bucket_name" >> $GITHUB_OUTPUT
@@ -102,7 +104,15 @@ jobs:
     #     echo "AWS_SECRET_ACCESS_KEY=$(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
 
     - name: execute py script # run main.py
-      run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
+      # run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
+      run: |
+        echo "::add-mask::$AWS_ACCESS_KEY_ID"
+        AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
+
+        echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
+        AWS_SECRET_ACCESS_KEY=${{ needs.terraform-init.outputs.secret-key }}
+
+        python scripts/dynamodb_init.py -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
       env:
         TABLE_NAME: ${{ env.TABLE_NAME }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
