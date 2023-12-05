@@ -49,7 +49,6 @@ def arg_parser():
 
     parser.add_argument('-a', '--access_key', help='AWS Access Key', required=True)
     parser.add_argument('-s', '--secret_key', help='AWS Secret Key', required=True)
-    # parser.add_argument('-p', '--passphrase', help='Secret passphrase', required=True)
 
     args = parser.parse_args()
 
@@ -58,6 +57,7 @@ def arg_parser():
 
 if __name__ == '__main__':
     args = arg_parser()
+
     config = Config()
     config.AWS_ACCESS_KEY_ID = args.access_key
     config.AWS_SECRET_ACCESS_KEY = args.secret_key

@@ -106,9 +106,11 @@ jobs:
     - name: execute py script # run main.py
       # run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
       run: |
+        AWS_ACCESS_KEY_ID=init
         echo "::add-mask::$AWS_ACCESS_KEY_ID"
         AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
 
+        AWS_SECRET_ACCESS_KEY=init
         echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
         AWS_SECRET_ACCESS_KEY=${{ needs.terraform-init.outputs.secret-key }}
 
