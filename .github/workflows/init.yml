@@ -1,17 +1,28 @@
-name: Init terraform remote deploy
+name: Deploy terraform remote backend
 
 on:
-  push:
-    branches: ["main", "dev"]
+  # push:
+  #   branches: ["main", "dev"]
   workflow_call:
     inputs:
-      terraform_folder:
+      ycloud_region:
+        default: ru-central1
+        description: YCloud region
         type: string
         required: false
-        description: Path to a Terraform configs folder
+      terraform_folder:
         default: deploy
+        description: Path to a Terraform configs folder
+        type: string
+        required: false
+      dynamodb_table_name:
+        default: lock
+        description: Таблица для хранения состояния
+        type: string
+        required: false
 
 jobs:
+  # Раскатываю terraform'ом инфраструктуру
   terraform-init:
     name: Terraform apply
     runs-on: ubuntu-latest
@@ -28,7 +39,7 @@ jobs:
 
     env:
       YC_TOKEN: ${{ secrets.YC_TOKEN }}
-      BASE_DIR: deploy
+      BASE_DIR: ${{ inputs.terraform_folder }}
 
     steps:
     - name: Checkout repo
@@ -44,8 +55,6 @@ jobs:
         terraform -chdir=${{ env.BASE_DIR }} init
         terraform -chdir=${{ env.BASE_DIR }} plan -input=false -var-file tfvars/testing.tfvars
         terraform -chdir=${{ env.BASE_DIR }} apply -auto-approve -input=false -var-file tfvars/testing.tfvars
-      # env:
-      #   YC_TOKEN: ${{ secrets.YCLOUN_ACCESS_TOKEN_TESTING }}
 
     - name: Terraform outputs
       id: terraform-outputs
@@ -63,7 +72,7 @@ jobs:
         echo "access-key=$access_key" >> $GITHUB_OUTPUT
         echo "secret-key=$secret_key" >> $GITHUB_OUTPUT
 
-
+  # Создаю таблицу для хранения состояния
   dynamodb-init:
     name: Create table into DynamoDB
     runs-on: ubuntu-latest
@@ -72,10 +81,6 @@ jobs:
     defaults:
       run:
         shell: bash
-
-    env:
-      REGION: ru-central1
-      TABLE_NAME: lock
 
     steps:
     - name: Checkout repo
@@ -91,33 +96,25 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r scripts/requirements.txt
 
-    # - name: Try to hide secrets
-    #   run: |
-    #     AWS_ACCESS_KEY_ID=test
-    #     echo "::add-mask::$AWS_ACCESS_KEY_ID"
-    #     AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
-    #     echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> $GITHUB_ENV
-
     - name: Decrypt secrets from the previous job
       run: |
         echo "AWS_ACCESS_KEY_ID=$(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)" >> $GITHUB_ENV
 
     - name: execute py script # run main.py
-      run: python scripts/dynamodb_init.py -a $(echo -n '${{ needs.terraform-init.outputs.access-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -) -s $(echo -n '${{ needs.terraform-init.outputs.secret-key }}' | base64 -d | gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output -)
-      # run: |
-      #   AWS_ACCESS_KEY_ID=init
-      #   echo "::add-mask::$AWS_ACCESS_KEY_ID"
-      #   AWS_ACCESS_KEY_ID=${{ needs.terraform-init.outputs.access-key }}
-
-      #   AWS_SECRET_ACCESS_KEY=init
-      #   echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
-      #   AWS_SECRET_ACCESS_KEY=${{ needs.terraform-init.outputs.secret-key }}
-
-      #   python scripts/dynamodb_init.py -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
+      run: | 
+        python scripts/dynamodb_init.py \
+          -a $(\
+            echo -n '${{ needs.terraform-init.outputs.access-key }}' | \
+            base64 -d | \
+            gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output - \
+          ) \
+          -s $(\
+            echo -n '${{ needs.terraform-init.outputs.secret-key }}' | \
+            base64 -d | \
+            gpg --decrypt --quiet --batch --passphrase ${{ secrets.SECRET_PASSPHRASE }} --output - \
+          )
       env:
-        TABLE_NAME: ${{ env.TABLE_NAME }}
+        TABLE_NAME: ${{ inputs.dynamodb_table_name }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
-        REGION_NAME: ${{ env.REGION }}
-        # AWS_ACCESS_KEY_ID: ${{ needs.terraform-init.outputs.access-key }}
-        # AWS_SECRET_ACCESS_KEY: ${{ needs.terraform-init.outputs.secret-key }}
+        REGION_NAME: ${{ inputs.ycloud_region }}
