@@ -3,23 +3,29 @@ name: Deploy terraform remote backend
 on:
   # push:
   #   branches: ["main", "dev"]
-  workflow_call:
+  workflow_dispatch:  # running manually
     inputs:
       ycloud_region:
         default: ru-central1
         description: YCloud region
-        type: string
-        required: false
+        type: choice
+        required: true
+        options:
+        - ru-central1
       terraform_folder:
         default: deploy
         description: Path to a Terraform configs folder
         type: string
-        required: false
+        required: true
       dynamodb_table_name:
         default: lock
         description: Таблица для хранения состояния
         type: string
-        required: false
+        required: true
+      environment:
+        description: YCloud Environment
+        type: environment
+        required: true
 
 jobs:
   # Раскатываю terraform'ом инфраструктуру
@@ -53,8 +59,10 @@ jobs:
     - name: Terraform apply
       run: |
         terraform -chdir=${{ env.BASE_DIR }} init
-        terraform -chdir=${{ env.BASE_DIR }} plan -input=false -var-file tfvars/testing.tfvars
-        terraform -chdir=${{ env.BASE_DIR }} apply -auto-approve -input=false -var-file tfvars/testing.tfvars
+        terraform -chdir=${{ env.BASE_DIR }} plan -input=false
+        terraform -chdir=${{ env.BASE_DIR }} apply -auto-approve -input=false
+      env:
+        TF_VAR_environment: ${{ inputs.environment }}
 
     - name: Terraform outputs
       id: terraform-outputs
