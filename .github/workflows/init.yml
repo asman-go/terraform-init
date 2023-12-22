@@ -121,3 +121,12 @@ jobs:
         TABLE_NAME: ${{ inputs.dynamodb_table_name }}
         DOCUMENT_API_ENDPOINT: ${{ needs.terraform-init.outputs.document-api-endpoint }}
         REGION_NAME: ${{ inputs.ycloud_region }}
+
+  save-secret:
+    name: test
+    uses: asman-go/github-cicd/.github/workflows/update_repo_secret_test.yml@main
+    with:
+      secret_key: TEST_DOCUMENT_API_ENDPOINT
+      secret_value: ${{ needs.terraform-init.outputs.document-api-endpoint }}
+      level: repository
+    secrets: inherit
