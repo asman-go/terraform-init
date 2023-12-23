@@ -35,7 +35,7 @@ jobs:
     # needs: dynamodb-init
     with:
       secret_key: TEST_DOCUMENT_API_ENDPOINT
-      secret_value: ${{ needs.terraform-init.outputs.document-api-endpoint }}
+      secret_value: XXX
       level: repository
     secrets: inherit
 
