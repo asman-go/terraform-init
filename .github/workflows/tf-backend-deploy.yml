@@ -61,6 +61,7 @@ jobs:
         access_key=$(echo $s3_storage_tfstate | jq -r '.access_key')
         secret_key=$(echo $s3_storage_tfstate | jq -r '.secret_key')
 
+        echo "::add-mask::$access_key"
         echo "::add-mask::$secret_key"
 
         echo "document-api-endpoint=$dynamodb_api_endpoint" >> $GITHUB_OUTPUT
@@ -68,14 +69,13 @@ jobs:
         echo "access-key=$access_key" >> $GITHUB_OUTPUT
         echo "secret-key=$secret_key" >> $GITHUB_OUTPUT
     
-    - name: Save to Github variables
+    - name: Save to Github credentials
       uses: asman-go/update-secret-action@v0.1
       with:
         key: DYNAMODB_API_ENDPOINT
         value: ${{ steps.terraform-outputs.outputs.document-api-endpoint }}
         token: ${{ secrets.PAT_GITHUB_TOKEN }}
         level: organization
-        type: variable
         visibility: all
     
     - name: Save to Github variables
@@ -88,14 +88,13 @@ jobs:
         type: variable
         visibility: all
 
-    - name: Save to Github variables
+    - name: Save to Github credentials
       uses: asman-go/update-secret-action@v0.1
       with:
         key: AWS_ACCESS_KEY
         value: ${{ steps.terraform-outputs.outputs.access-key }}
         token: ${{ secrets.PAT_GITHUB_TOKEN }}
         level: organization
-        type: variable
         visibility: all
 
     - name: Save to Github credentials

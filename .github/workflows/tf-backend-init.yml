@@ -23,7 +23,6 @@ jobs:
   dynamodb-init:
     name: Create table into DynamoDB
     runs-on: ubuntu-latest
-    needs: terraform-init
 
     defaults:
       run:
@@ -46,9 +45,9 @@ jobs:
     - name: execute py script # run main.py
       run: | 
         python scripts/dynamodb_init.py \
-          -a '${{ vars.AWS_ACCESS_KEY }}' \
+          -a '${{ secrets.AWS_ACCESS_KEY }}' \
           -s '${{ secrets.AWS_SECRET_KEY }}'
       env:
         TABLE_NAME: ${{ inputs.dynamodb_table_name }}
-        DOCUMENT_API_ENDPOINT: ${{ vars.DYNAMODB_API_ENDPOINT }}
+        DOCUMENT_API_ENDPOINT: ${{ secrets.DYNAMODB_API_ENDPOINT }}
         REGION_NAME: ${{ inputs.ycloud_region }}
