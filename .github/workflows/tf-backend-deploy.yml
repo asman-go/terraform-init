@@ -63,6 +63,7 @@ jobs:
 
         echo "::add-mask::$access_key"
         echo "::add-mask::$secret_key"
+        echo "::add-mask::$dynamodb_api_endpoint"
 
         echo "document-api-endpoint=$dynamodb_api_endpoint" >> $GITHUB_OUTPUT
         echo "bucket-name=$bucket_name" >> $GITHUB_OUTPUT
