@@ -3,6 +3,11 @@ output "sa-terraform" {
   value       = module.terraform-main.sa-terraform
 }
 
+output "folder" {
+  description = "Каталог под проект"
+  value       = local.folder_name
+}
+
 # output "sa-terraform-static-key" {
 #   description = "Статический ключ для сервисного аккаунта для работы с S3 & DynamoDB для terraform remote backend"
 #   value       = module.terraform-main.sa-terraform-static-key
